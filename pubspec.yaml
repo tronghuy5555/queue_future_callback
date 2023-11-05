@@ -1,5 +1,5 @@
 name: queue_future_callback
-description: A new Flutter package project.
+description: Consume future callback especially popup to avoid overlay at the same time
 version: 0.0.1
 homepage: https://github.com/tronghuy5555/queue_future_callback
 
