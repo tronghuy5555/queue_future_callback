@@ -12,18 +12,25 @@ enum QueueCallbackStatus {
 }
 
 Duration kDelayTime = const Duration(milliseconds: 100);
+typedef FutureCallBack = Future? Function();
 
 class QueueFutureCallback {
   static const String TAG = 'QueueFutureCallback';
   final Duration? delayTime;
+
+  /// Wrap try/catch when consume latest future callback to avoid any errors
+  final bool safetyConsume;
+
   final ValueChanged<QueueCallbackStatus>? onStatusChanged;
 
   QueueFutureCallback({
     this.delayTime,
     this.onStatusChanged,
+    this.safetyConsume = true,
   });
 
-  final Queue<Future? Function()> futureCallbacks = Queue();
+  final Queue<FutureCallBack> futureCallbacks = Queue();
+
   QueueCallbackStatus _status = QueueCallbackStatus.initial;
   QueueCallbackStatus get status => _status;
 
@@ -35,21 +42,14 @@ class QueueFutureCallback {
         _status == QueueCallbackStatus.resume;
   }
 
-  Future? addFutureIntoQueue(Future? Function() futureCallBack) async {
-    try {
-      if (shouldConsumeCallBack()) {
-        futureCallbacks.add(futureCallBack);
-        debugPrint(
-            '[$TAG] - add future callback success ${futureCallBack.hashCode}');
-        await _consumeCallbackWhenReady();
-      } else if (status != QueueCallbackStatus.disposed) {
-        futureCallbacks.add(futureCallBack);
-      }
-    } catch (e, _) {
-      futureCallBack.call();
+  Future? addFutureIntoQueue(FutureCallBack futureCallBack) async {
+    if (shouldConsumeCallBack()) {
+      futureCallbacks.add(futureCallBack);
       debugPrint(
-        '[$TAG] - Somethings wrong was wrong, consume popup immediately to avoiding freezing app',
-      );
+          '[$TAG] - add future callback success ${futureCallBack.hashCode}');
+      await _consumeCallbackWhenReady();
+    } else if (status != QueueCallbackStatus.disposed) {
+      futureCallbacks.add(futureCallBack);
     }
   }
 
@@ -74,10 +74,23 @@ class QueueFutureCallback {
       }
       debugPrint(
           '[$TAG]- Consuming - consume future callback success ${latestCallback.hashCode}');
-      await latestCallback.call();
+      await _tryCatchFutureCallBack(latestCallback);
       await Future.delayed(delayTime ?? kDelayTime);
     }
     _onStatusChanged(QueueCallbackStatus.consumeSuccess);
+  }
+
+  Future? _tryCatchFutureCallBack(FutureCallBack futureCallBack) async {
+    try {
+      await futureCallBack.call();
+    } catch (e) {
+      debugPrint(
+          '[$TAG]- Consuming - future callback error ${futureCallBack.hashCode}');
+      if (!safetyConsume) {
+        _onStatusChanged(QueueCallbackStatus.consumeSuccess);
+        rethrow;
+      }
+    }
   }
 
   void pauseConsumingCallback() {
