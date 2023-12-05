@@ -11,7 +11,11 @@ and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/developing-packages).
 -->
 
-This package is useful when you want to add multiple future callbacks sequentially 
+[![GitHub Actions Build ✅](https://github.com/tronghuy5555/queue_future_callback/actions/workflows/dart.yml/badge.svg)](https://github.com/tronghuy5555/queue_future_callback/actions/workflows/dart.yml/badge.svg)
+![Coverage](./coverage_badge.svg)
+
+This package is useful when you want to add multiple future callbacks sequentially
+
 A specific use case: you want show popup sequentially to avoid multiple dialog, overlay banner show it at the same time.
 
 ## Usage
