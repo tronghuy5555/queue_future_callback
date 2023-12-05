@@ -11,8 +11,8 @@ and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/developing-packages).
 -->
 
-[![GitHub Actions Build ✅](https://github.com/tronghuy5555/queue_future_callback/actions/workflows/dart.yml/badge.svg)](https://github.com/tronghuy5555/queue_future_callback/actions/workflows/dart.yml/badge.svg)
-![Coverage](./coverage_badge.svg)
+[![GitHub Actions Build ✅](https://github.com/tronghuy5555/queue_future_callback/actions/workflows/dart.yml/badge.svg)](https://codecov.io/gh/tronghuy5555/queue_future_callback)
+[![codecov](https://codecov.io/gh/tronghuy5555/queue_future_callback/graph/badge.svg?token=W12CC9R3ON)](https://codecov.io/gh/tronghuy5555/queue_future_callback)
 
 This package is useful when you want to add multiple future callbacks sequentially
 
