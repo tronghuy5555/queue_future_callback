@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/mockito.dart';
 
 import 'package:queue_future_callback/queue_future_callback.dart';
 
@@ -72,4 +73,39 @@ void main() {
     expect(queueFutureCallback.status, QueueCallbackStatus.disposed);
     expect(queueFutureCallback.futureCallbacks.isEmpty, true);
   });
+
+  test('test_addQueue_when_order_state', () async {
+    futureCallBack() async {
+      return 1;
+    }
+
+    final statusChanged = MockCallable<QueueCallbackStatus>();
+
+    QueueFutureCallback queueFutureCallback = QueueFutureCallback(
+      onStatusChanged: statusChanged,
+    );
+    expect(queueFutureCallback.status, QueueCallbackStatus.initial);
+    await queueFutureCallback.addFutureIntoQueue(futureCallBack);
+    verifyInOrder([
+      statusChanged(QueueCallbackStatus.consuming),
+      statusChanged(QueueCallbackStatus.consumeSuccess),
+    ]);
+
+    queueFutureCallback.pauseConsumingCallback();
+    verifyInOrder([
+      statusChanged(QueueCallbackStatus.pause),
+    ]);
+    queueFutureCallback.resumeConsumingCallback();
+    verifyInOrder([
+      statusChanged(QueueCallbackStatus.resume),
+      statusChanged(QueueCallbackStatus.consuming),
+      statusChanged(QueueCallbackStatus.consumeSuccess),
+    ]);
+  });
 }
+
+abstract class Callable<T> {
+  void call([T? arg]) {}
+}
+
+class MockCallable<T> extends Mock implements Callable<T> {}

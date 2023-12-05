@@ -15,7 +15,7 @@ Duration kDelayTime = const Duration(milliseconds: 100);
 typedef FutureCallBack = Future? Function();
 
 class QueueFutureCallback {
-  static const String TAG = 'QueueFutureCallback';
+  static const String tag = 'QueueFutureCallback';
   final Duration? delayTime;
 
   /// Wrap try/catch when consume latest future callback to avoid any errors
@@ -46,7 +46,7 @@ class QueueFutureCallback {
     if (shouldConsumeCallBack()) {
       futureCallbacks.add(futureCallBack);
       debugPrint(
-          '[$TAG] - add future callback success ${futureCallBack.hashCode}');
+          '[$tag] - add future callback success ${futureCallBack.hashCode}');
       await _consumeCallbackWhenReady();
     } else if (status != QueueCallbackStatus.disposed) {
       futureCallbacks.add(futureCallBack);
@@ -64,16 +64,16 @@ class QueueFutureCallback {
       if (_status == QueueCallbackStatus.pause) {
         //*Put latest callback in the first position and exit the loop
         debugPrint(
-            '[$TAG] - Consuming - pause future callback and put latest callback into first position ${latestCallback.hashCode}');
+            '[$tag] - Consuming - pause future callback and put latest callback into first position ${latestCallback.hashCode}');
         futureCallbacks.addFirst(latestCallback);
         return;
       }
       if (_status == QueueCallbackStatus.disposed) {
-        debugPrint('[$TAG] - Consuming - disposed future callback');
+        debugPrint('[$tag] - Consuming - disposed future callback');
         return;
       }
       debugPrint(
-          '[$TAG]- Consuming - consume future callback success ${latestCallback.hashCode}');
+          '[$tag]- Consuming - consume future callback success ${latestCallback.hashCode}');
       await _tryCatchFutureCallBack(latestCallback);
       await Future.delayed(delayTime ?? kDelayTime);
     }
@@ -85,7 +85,7 @@ class QueueFutureCallback {
       await futureCallBack.call();
     } catch (e) {
       debugPrint(
-          '[$TAG]- Consuming - future callback error ${futureCallBack.hashCode}');
+          '[$tag]- Consuming - future callback error ${futureCallBack.hashCode}');
       if (!safetyConsume) {
         _onStatusChanged(QueueCallbackStatus.consumeSuccess);
         rethrow;
@@ -106,14 +106,14 @@ class QueueFutureCallback {
 
   void _onStatusChanged(QueueCallbackStatus status) {
     if (_status != status) {
-      debugPrint('[$TAG] - status changed: $_status ----> $status');
+      debugPrint('[$tag] - status changed: $_status ----> $status');
       _status = status;
       onStatusChanged?.call(status);
     }
   }
 
   void dispose() {
-    debugPrint('[$TAG] - disposed queue');
+    debugPrint('[$tag] - disposed queue');
     _onStatusChanged(QueueCallbackStatus.disposed);
     futureCallbacks.clear();
   }
